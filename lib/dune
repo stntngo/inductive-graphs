@@ -1,0 +1,6 @@
+(library
+ (inline_tests)
+ (name inductive_data_types)
+ (libraries base)
+ (preprocess
+  (pps ppx_assert ppx_inline_test)))

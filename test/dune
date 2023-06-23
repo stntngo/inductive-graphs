@@ -1,0 +1,4 @@
+(test
+ (name inductive_data_types)
+ (preprocess
+  (pps ppx_assert ppx_inline_test)))

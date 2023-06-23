@@ -1,0 +1,6 @@
+(executable
+ (public_name inductive_data_types)
+ (name main)
+ (libraries inductive_data_types)
+ (preprocess
+  (pps ppx_assert ppx_inline_test)))
