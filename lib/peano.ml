@@ -81,53 +81,55 @@ module Natural = struct
   (* is_event returns whether an inductive natural type is zero by checking
      whether the remainder of rem n 2 == 0 *)
   let is_even n = match rem n (inc (inc Zero)) with Zero -> true | _ -> false
+
+  let%test_unit "of_int/to_int" =
+    let open Base in
+    [%test_eq: int] (to_int (of_int 0)) 0;
+    [%test_eq: int] (to_int (of_int 10)) 10
+
+  let%test_unit "inc/dec" =
+    let x = of_int 5 in
+    let open Base in
+    [%test_eq: int] (to_int (inc x)) 6;
+    [%test_eq: int] (to_int (dec x)) 4
+
+  let%test_unit "plus" =
+    let x = of_int 5 in
+    let y = of_int 6 in
+    let open Base in
+    [%test_eq: int] (to_int (plus x y)) 11
+
+  let%test_unit "multiply" =
+    let x = of_int 5 in
+    let y = of_int 6 in
+    let open Base in
+    [%test_eq: int] (to_int (multiply x y)) 30
+
+  let%test_unit "divide" =
+    let x = of_int 10 in
+    let y = of_int 2 in
+    let z = of_int 8 in
+    let open Base in
+    [%test_eq: int] (to_int (divide x y)) 5;
+    [%test_eq: int] (to_int (rem x z)) 2
+
+  let%test_unit "minus" =
+    let x = of_int 6 in
+    let y = of_int 5 in
+    let open Base in
+    [%test_eq: int] (to_int (minus x y)) 1
+
+  let%test_unit "less_than" =
+    let x = of_int 6 in
+    let y = of_int 5 in
+    let x_lt_y = x < y in
+    let y_lt_x = y < x in
+    let open Base in
+    [%test_eq: bool] x_lt_y false;
+    [%test_eq: bool] y_lt_x true
+
+  let%test_unit "is_even" =
+    let open Base in
+    [%test_eq: bool] (is_even (of_int 5)) false;
+    [%test_eq: bool] (is_even (of_int 26)) true
 end
-
-let%test_unit "of_int/to_int" =
-  let open Base in
-  [%test_eq: int] (Natural.to_int (Natural.of_int 0)) 0;
-  [%test_eq: int] (Natural.to_int (Natural.of_int 10)) 10
-
-let%test_unit "inc/dec" =
-  let x = Natural.of_int 5 in
-  let open Base in
-  [%test_eq: int] (Natural.to_int (Natural.inc x)) 6;
-  [%test_eq: int] (Natural.to_int (Natural.dec x)) 4
-
-let%test_unit "plus" =
-  let x = Natural.of_int 5 in
-  let y = Natural.of_int 6 in
-  let open Base in
-  [%test_eq: int] (Natural.to_int (Natural.plus x y)) 11
-
-let%test_unit "multiply" =
-  let x = Natural.of_int 5 in
-  let y = Natural.of_int 6 in
-  let open Base in
-  [%test_eq: int] (Natural.to_int (Natural.multiply x y)) 30
-
-let%test_unit "divide" =
-  let x = Natural.of_int 10 in
-  let y = Natural.of_int 2 in
-  let z = Natural.of_int 8 in
-  let open Base in
-  [%test_eq: int] (Natural.to_int (Natural.divide x y)) 5;
-  [%test_eq: int] (Natural.to_int (Natural.rem x z)) 2
-
-let%test_unit "minus" =
-  let x = Natural.of_int 6 in
-  let y = Natural.of_int 5 in
-  let open Base in
-  [%test_eq: int] (Natural.to_int (Natural.minus x y)) 1
-
-let%test_unit "less_than" =
-  let x = Natural.of_int 6 in
-  let y = Natural.of_int 5 in
-  let open Base in
-  [%test_eq: bool] Natural.(x < y) false;
-  [%test_eq: bool] Natural.(y < x) true
-
-let%test_unit "is_even" =
-  let open Base in
-  [%test_eq: bool] (Natural.is_even (Natural.of_int 5)) false;
-  [%test_eq: bool] (Natural.is_even (Natural.of_int 26)) true
