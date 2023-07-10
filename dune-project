@@ -5,22 +5,20 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github stntngo/inductive-graphs))
 
-(authors "Author Name")
+(authors "Niels Lindgren")
 
-(maintainers "Maintainer Name")
+(maintainers "Niels LIndgre")
 
 (license LICENSE)
 
-(documentation https://url/to/documentation)
-
 (package
  (name inductive_data_types)
- (synopsis "A short synopsis")
- (description "A longer description")
+ (synopsis "")
+ (description "")
  (depends ocaml dune)
  (tags
-  (topics "to describe" your project)))
+  (topics)))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/dune-files.html#dune-project
