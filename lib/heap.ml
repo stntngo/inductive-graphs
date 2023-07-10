@@ -9,24 +9,25 @@ end
 module Make (O : Ordered) = struct
   module Elem = O
 
-  type tree = Node of int * Elem.t * tree list
+  type tree = Node of float * Elem.t * tree list
   type heap = tree list
 
   let empty = []
+  let unit r x = Node (r, x, [])
   let is_empty = function [] -> true | _ -> false
   let rank (Node (r, _, _)) = r
   let root (Node (_, x, _)) = x
 
   let link (Node (r, x1, c1) as t1) (Node (_, x2, c2) as t2) =
-    if Elem.leq x1 x2 then Node (r + 1, x1, t2 :: c1)
-    else Node (r + 1, x2, t1 :: c2)
+    if Elem.leq x1 x2 then Node (r +. 1.0, x1, t2 :: c1)
+    else Node (r +. 1.0, x2, t1 :: c2)
 
   let rec ins_tree t = function
     | [] -> [ t ]
     | t' :: ts' as ts ->
         if rank t < rank t' then t :: ts else ins_tree (link t t') ts'
 
-  let insert x ts = ins_tree (Node (0, x, [])) ts
+  let insert x ts = ins_tree (unit 0.0 x) ts
 
   let rec merge ts1 ts2 =
     match (ts1, ts2) with
@@ -36,6 +37,8 @@ module Make (O : Ordered) = struct
         if rank t1 < rank t2 then t1 :: merge ts1' ts2
         else if rank t2 < rank t1 then t2 :: merge ts1 ts2'
         else ins_tree (link t1 t2) (merge ts1' ts2')
+
+  let merge_all tss = List.fold_left merge empty tss
 
   let rec remove_min_tree = function
     | [] -> failwith "empty"

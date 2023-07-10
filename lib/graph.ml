@@ -5,6 +5,9 @@ type 'b adj = ('b * node) list
 type ('a, 'b) context = 'b adj * node * 'a * 'b adj
 type path = node list
 type path_tree = path list
+type 'a lnode = node * 'a
+type 'a lpath = 'a lnode list
+type 'a lrtree = 'a lpath list
 
 module type Graph = sig
   type ('a, 'b) t
@@ -16,14 +19,26 @@ module type Graph = sig
   val match_node : node -> ('a, 'b) t -> ('a, 'b) context option * ('a, 'b) t
 end
 
-module Make (G : Graph) : sig
-  include Graph
+module Make (G : Graph) = struct
+  module H = Heap.Make (struct
+    type t = float lpath
 
-  val nodes : ('a, 'b) t -> node list
-  val topsort : ('a, 'b) t -> node list
-  val bft : node -> ('a, 'b) t -> path_tree
-  val esp : node -> node -> ('a, 'b) t -> path
-end = struct
+    let eq (x : t) (y : t) =
+      match (x, y) with
+      | (_, a1) :: _, (_, a2) :: _ -> Float.equal a1 a2
+      | _ -> false
+
+    let lt (x : t) (y : t) =
+      match (x, y) with
+      | (_, a1) :: _, (_, a2) :: _ -> Float.compare a1 a2 < 0
+      | _ -> false
+
+    let leq (x : t) (y : t) =
+      match (x, y) with
+      | (_, a1) :: _, (_, a2) :: _ -> Float.compare a1 a2 <= 0
+      | _ -> false
+  end)
+
   include G
 
   type 'a tree = Br of 'a * 'a tree list
@@ -69,14 +84,6 @@ end = struct
   let topsort g = ((dff (nodes g) @ List.concat_map postorder) @ List.rev) g
   let scc g = dff (topsort g) (grev g)
 
-  let topsort' g =
-    (* Compute the depth first spanning forests *)
-    dff (nodes g) g
-    (* Traverse each tree in postorder and concatenate orders into single output *)
-    |> List.concat_map postorder
-    (* The order of the sorted list is in the wrong direction so reverse it *)
-    |> List.rev
-
   let rec bfs vs g =
     match vs with
     | [] -> []
@@ -108,10 +115,28 @@ end = struct
     | _ :: ps -> bf ps g
 
   let bft v = bf [ [ v ] ]
-  let first p = List.find p
 
   let esp s t g =
     bft s g
     |> List.find (fun vs -> match vs with v :: _ -> v == t | _ -> false)
     |> List.rev
+
+  let get_path (v : node) (t : 'a lrtree) : path =
+    List.find (function (w, _) :: _ -> w == v | _ -> false) t
+    |> List.map fst |> List.rev
+
+  let expand (d : float) (p : float lpath) ((_, _, _, s) : ('a, float) context)
+      =
+    List.map (fun (l, v) -> H.unit (l +. d) ((v, l +. d) :: p)) s
+
+  let rec dijkstra (h : H.heap) (g : ('a, float) t) : float lrtree =
+    if H.is_empty h || is_empty g then []
+    else
+      let Node (_, p, _), h' = H.remove_min_tree h in
+      match p with
+      | [] -> dijkstra h' g
+      | (v, d) :: _ -> (
+          match match_node v g with
+          | Some c, g' -> p :: dijkstra (H.merge h' (expand d p c)) g'
+          | None, g' -> dijkstra h' g')
 end
